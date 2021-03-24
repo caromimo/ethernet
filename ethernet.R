@@ -9,7 +9,7 @@ rm(list = ls())
 library(tidyverse)
 library(scales)
 
-# source for the ethernet speeds: 
+# source for the ethernet speeds and interpacket gaps: 
 # https://en.wikipedia.org/wiki/Interpacket_gap
 
 # 9.6 µs for 10 Mbit/s Ethernet,
@@ -36,87 +36,58 @@ data <- tibble(interpacket_gaps_ns, ethernet_speed_gbps)
 # write_csv(data,"~/Projects/ethernet/data.csv")
 
 # FOR THE PLOT:
-# the interpacket gap as the response variable, and
-# the ethernet speed as the predictor variable
+# the interpacket gap as the response variable (y), and
+# the ethernet speed as the predictor variable (x)
+# because that is what makes the most sense
+
 # FOR THE FUNCTION: 
-# the ethernet speed as the predictor variable, and
-# the interpacket gap as the response variable
+# the ethernet speed as the predictor variable (y), and
+# the interpacket gaps as the response variable (x)
+# to find the ethernet speed corresponding to some gaps
 
-# power function
-
-# define the variables
-x <- data$ethernet_speed_gbps
-y <- data$interpacket_gaps_ns
-
-# define the model 
-model <- lm(log(x) ~ log(y), data = data)
-
-my_model <- lm(log(y)~ log(x))
-summary(my_model)
-
-attach(data)
-nmodel <- lm(log(ethernet_speed_gbps)~ log(interpacket_gaps_ns))
-summary(nmodel)
-
-mmodel <- lm(log(interpacket_gaps_ns)~ log(ethernet_speed_gbps))
-
-mmodel_coefficients <- mmodel$coefficients
-new <- data.frame(interpacket_gaps_ns = 1)
-predict(nmodel, newdata = new)
-new <- data.frame(y = 1)
-predict(mmodel, new, se.fit = TRUE)
-
-
-# model returns:
-# Call: lm(formula = log(x) ~ log(y), data = data)
-# Coefficients: (Intercept): 4.564
-# Coefficients: log(y): -1.000 
-
-# power function so f(x) = k*x^p
-# k and p are real numbers 
-# k is known as the coefficient
-
-coefficient <- 4.564
-p <- -1.000
-
+# building a model
 y <- data$ethernet_speed_gbps
 x <- data$interpacket_gaps_ns
-xmodel <- lm(log(y) ~ log(x))
-summary(xmodel)
+model <- lm(log(y) ~ log(x))
+summary(model)
+
+# speed of cycles to access RAM, L3 cache, L2 cache and L1 cache
+# intel i7-6700 processor using DDR4-2400 RAM
+# source: Mundhenke, M. 2019. Spectre and Cloud: An evaluation of threats in shared computation environments.
 gaps <- data.frame(x = c(61.5, 10.5, 3.5, 1))
-test <- predict(xmodel, newdata = gaps)
 
-# finding the x value for the y values from the Moritz paper
+# using the model to predict the ethernet speeds for the gaps:
+speeds <- data.frame(predict(model, newdata = gaps))
 
-ram_y_gap <- 61.5
-l3_y_gap <- 10.5
-l2_y_gap <- 3.5
-l1_y_gap <- 1
+# the model returned log values of y
+# putting it all together 
+intel <-cbind(gaps, speeds) %>%
+  rename(interpacket_gaps_ns = x, 
+         log_ethernet_speed_gbps = predict.model..newdata...gaps.) %>%
+  mutate(
+         ethernet_speed_gbps = exp(log_ethernet_speed_gbps)
+         ) 
 
-ram_x_speed <- exp(coefficient)*(ram_y_gap^p)
-l3_x_speed <- exp(coefficient)*(l3_y_gap^p)
-l2_x_speed <- exp(coefficient)*(l2_y_gap^p)
-l1_x_speed <- exp(coefficient)*(l1_y_gap^p)
+# extracting the values for plotting
 
-ram_x_speed <- 1.560976
-l3_x_speed <- 9.142857
-l2_x_speed <- 27.428571
-l1_x_speed <- 96.000000
+RAM_gap <- intel[1,1]
+L3_gap <- intel[2,1]
+L2_gap <- intel[3,1]
+L1_gap <- intel[4,1]
 
-# reference for the speed of cycles to access the caches and the RAM
-# Intel i7-6700 processor using DDR4-2400 RAM
-# Mundhenke, M. (2019). Spectre and Cloud: An evaluation of threats in shared computation environments.
-
-# Source: Mundhenke, M. (2019). Spectre and Cloud: An evaluation of threats in shared computation environments. Timing are calculated assuming a clock speed of 4 GHz for an Intel i7-6700 processor using DDR4-2400 RAM.
+RAM_speed <- intel[1,3]
+L3_speed <- intel[2,3]
+L2_speed <- intel[3,3]
+L1_speed <- intel[4,3]
 
 # plotting the data
 
 data %>%
   ggplot(aes(x = ethernet_speed_gbps, y = interpacket_gaps_ns)) +
-  geom_rect(mapping=aes(xmin=ram_x_speed, xmax=1000, ymin=0, ymax=ram_y_gap), fill = "#eeeee4", alpha=0.3) +
-  geom_rect(mapping=aes(xmin=l3_x_speed, xmax=1000, ymin=0, ymax=l3_y_gap), fill = "#85c8f5", alpha=0.3) +
-  geom_rect(mapping=aes(xmin=l2_x_speed, xmax=1000, ymin=0, ymax=l2_y_gap), fill = "#5ca1fa", alpha=0.3) +
-  geom_rect(mapping=aes(xmin=l1_x_speed, xmax=1000, ymin=0, ymax=l1_y_gap), fill = "#007bff", alpha=0.3) +
+  geom_rect(mapping=aes(xmin=RAM_speed, xmax=1000, ymin=0, ymax=RAM_gap), fill = "#eeeee4", alpha=0.3) +
+  geom_rect(mapping=aes(xmin=L3_speed, xmax=1000, ymin=0, ymax=L3_gap), fill = "#85c8f5", alpha=0.3) +
+  geom_rect(mapping=aes(xmin=L2_speed, xmax=1000, ymin=0, ymax=L2_gap), fill = "#5ca1fa", alpha=0.3) +
+  geom_rect(mapping=aes(xmin=L1_speed, xmax=1000, ymin=0, ymax=L1_gap), fill = "#007bff", alpha=0.3) +
   geom_point(size = 2) + 
   geom_smooth(color = "black", size = 0.4) +
   scale_x_continuous(
@@ -143,8 +114,7 @@ data %>%
     legend.title = element_text(size = 14),
     legend.text = element_text(size = 12)
   ) +
-#  annotate("text", x=900, y=140, label= "Intel i7-6700 processor", hjust = 1) +
   annotate("text", x=900, y=50, label= "DDR4-2400 RAM (61.5 ns)", hjust = 1) +
   annotate("text", x=900, y=7, label= "Intel i7-6700 processor L3 cache (shared)\n (42 cycles ~ 10.5 ns)", hjust = 1) +
-  annotate("text", x=900, y=2.5, label= "L2 cache (per core)\n (14 cylces ~ 3.5 ns)", hjust = 1) +
-  annotate("text", x=900, y=0.7, label= "L1 cache (per core)\n (4 cycles ~ 1 ns)", hjust = 1)
+  annotate("text", x=900, y=2.35, label= "L2 cache (per core)\n (14 cylces ~ 3.5 ns)", hjust = 1) +
+  annotate("text", x=900, y=0.65, label= "L1 cache (per core)\n (4 cycles ~ 1 ns)", hjust = 1)
