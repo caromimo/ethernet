@@ -82,7 +82,7 @@ L1_speed <- intel[4,3]
 
 # plotting the data
 
-data %>%
+plot <- data %>%
   ggplot(aes(x = ethernet_speed_gbps, y = interpacket_gaps_ns)) +
   geom_rect(mapping=aes(xmin=RAM_speed, xmax=1000, ymin=0, ymax=RAM_gap), fill = "#eeeee4", alpha=0.3) +
   geom_rect(mapping=aes(xmin=L3_speed, xmax=1000, ymin=0, ymax=L3_gap), fill = "#85c8f5", alpha=0.3) +
@@ -99,10 +99,9 @@ data %>%
   annotation_logticks(base = 10) +
   scale_y_continuous(trans = "log10") +
   labs(
-    title = "Increased network speed reduces packet processing time",
     x = "Ethernet speed (Gbit/s or Gigabit)",
     y = "Time between packets (interpacket gap) (ns)",
-    caption = "Sources: Ethernet speeds from IEEE (on Wikipedia) and speeds to access RAM and caches from Mundhenke, M. 2019 (Spectre and Cloud: An evaluation of threats in shared computation environments).\nNote that the axes are on a logarithmic scale."
+    caption = "Sources: Ethernet speeds from IEEE (on Wikipedia) and speeds to access RAM and caches from Mundhenke, M. 2019 (Spectre and Cloud: An evaluation of threats in shared computation environments). Note that the axes are on a logarithmic scale."
   ) + 
   theme_minimal() + 
   theme(
@@ -114,7 +113,9 @@ data %>%
     legend.title = element_text(size = 14),
     legend.text = element_text(size = 12)
   ) +
-  annotate("text", x=900, y=50, label= "DDR4-2400 RAM (61.5 ns)", hjust = 1) +
-  annotate("text", x=900, y=7, label= "Intel i7-6700 processor L3 cache (shared)\n (42 cycles ~ 10.5 ns)", hjust = 1) +
-  annotate("text", x=900, y=2.35, label= "L2 cache (per core)\n (14 cylces ~ 3.5 ns)", hjust = 1) +
-  annotate("text", x=900, y=0.65, label= "L1 cache (per core)\n (4 cycles ~ 1 ns)", hjust = 1)
+  annotate("text", x=950, y=70, label= "DDR4-2400 RAM (61.5 ns)", hjust = 1) +
+  annotate("text", x=950, y=12, label= "Intel i7-6700 processor L3 cache (shared) (42 cycles ~ 10.5 ns)", hjust = 1) +
+  annotate("text", x=950, y=4, label= "L2 cache (per core) (14 cylces ~ 3.5 ns)", hjust = 1) +
+  annotate("text", x=950, y=1.15, label= "L1 cache (per core) (4 cycles ~ 1 ns)", hjust = 1)
+
+ggsave("plot.svg", width = 16, height = 9)
