@@ -85,6 +85,7 @@ L1_speed <- intel[4,3]
 plot <- data %>%
   ggplot(aes(x = ethernet_speed_gbps, y = interpacket_gaps_ns)) +
   geom_rect(mapping=aes(xmin=RAM_speed, xmax=1000, ymin=0, ymax=RAM_gap), fill = "#eeeee4", alpha=0.3) +
+  geom_rect(mapping=aes(xmin=RAM_speed, xmax=1000, ymin=0, ymax=RAM_gap), fill = "#eeeee4", alpha=0.3) +
   geom_rect(mapping=aes(xmin=L3_speed, xmax=1000, ymin=0, ymax=L3_gap), fill = "#85c8f5", alpha=0.3) +
   geom_rect(mapping=aes(xmin=L2_speed, xmax=1000, ymin=0, ymax=L2_gap), fill = "#5ca1fa", alpha=0.3) +
   geom_rect(mapping=aes(xmin=L1_speed, xmax=1000, ymin=0, ymax=L1_gap), fill = "#007bff", alpha=0.3) +
@@ -117,5 +118,7 @@ plot <- data %>%
   annotate("text", x=950, y=12, label= "Intel i7-6700 processor L3 cache (shared) (42 cycles ~ 10.5 ns)", hjust = 1) +
   annotate("text", x=950, y=4, label= "L2 cache (per core) (14 cylces ~ 3.5 ns)", hjust = 1) +
   annotate("text", x=950, y=1.15, label= "L1 cache (per core) (4 cycles ~ 1 ns)", hjust = 1)
+
+plot 
 
 ggsave("plot.svg", width = 16, height = 9)
