@@ -82,13 +82,12 @@ L1_speed <- intel[4,3]
 
 # plotting the data
 
-plot <- data %>%
+data %>%
   ggplot(aes(x = ethernet_speed_gbps, y = interpacket_gaps_ns)) +
-  geom_rect(mapping=aes(xmin=RAM_speed, xmax=1000, ymin=0, ymax=RAM_gap), fill = "#eeeee4", alpha=0.3) +
-  geom_rect(mapping=aes(xmin=RAM_speed, xmax=1000, ymin=0, ymax=RAM_gap), fill = "#eeeee4", alpha=0.3) +
-  geom_rect(mapping=aes(xmin=L3_speed, xmax=1000, ymin=0, ymax=L3_gap), fill = "#85c8f5", alpha=0.3) +
-  geom_rect(mapping=aes(xmin=L2_speed, xmax=1000, ymin=0, ymax=L2_gap), fill = "#5ca1fa", alpha=0.3) +
-  geom_rect(mapping=aes(xmin=L1_speed, xmax=1000, ymin=0, ymax=L1_gap), fill = "#007bff", alpha=0.3) +
+  geom_rect(mapping=aes(xmin=0, xmax=L1_speed, ymin=L1_gap, ymax=10000), fill = "#6b9080", alpha=0.3) +
+  geom_rect(mapping=aes(xmin=0, xmax=L2_speed, ymin=L2_gap, ymax=10000), fill = "#a4c3b2", alpha=0.3) +
+  geom_rect(mapping=aes(xmin=0, xmax=L3_speed, ymin=L3_gap, ymax=10000), fill = "#cce3de", alpha=0.3) +
+  geom_rect(mapping=aes(xmin=0, xmax=RAM_speed, ymin=RAM_gap, ymax=10000), fill = "#eaf4f4", alpha=0.3) +
   geom_point(size = 2) + 
   geom_smooth(color = "black", size = 0.4) +
   scale_x_continuous(
@@ -114,10 +113,10 @@ plot <- data %>%
     legend.title = element_text(size = 14),
     legend.text = element_text(size = 12)
   ) +
-  annotate("text", x=950, y=70, label= "DDR4-2400 RAM (61.5 ns)", hjust = 1) +
-  annotate("text", x=950, y=12, label= "Intel i7-6700 processor L3 cache (shared) (42 cycles ~ 10.5 ns)", hjust = 1) +
-  annotate("text", x=950, y=4, label= "L2 cache (per core) (14 cylces ~ 3.5 ns)", hjust = 1) +
-  annotate("text", x=950, y=1.15, label= "L1 cache (per core) (4 cycles ~ 1 ns)", hjust = 1)
+  annotate("text", x=0.01, y=70, label= "DDR4-2400 RAM (61.5 ns)", hjust = 0) +
+  annotate("text", x=0.01, y=12, label= "Intel i7-6700 processor L3 cache (shared) (42 cycles ~ 10.5 ns)", hjust = 0) +
+  annotate("text", x=0.01, y=4, label= "L2 cache (per core) (14 cylces ~ 3.5 ns)", hjust = 0) +
+  annotate("text", x=0.01, y=1.15, color = "#fffafa", label= "L1 cache (per core) (4 cycles ~ 1 ns)", hjust = 0)
 
 plot 
 
