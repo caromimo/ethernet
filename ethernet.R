@@ -82,7 +82,7 @@ L1_speed <- intel[4,3]
 
 # plotting the data
 
-data %>%
+final_plot <- data %>%
   ggplot(aes(x = ethernet_speed_gbps, y = interpacket_gaps_ns)) +
   geom_rect(mapping=aes(xmin=0, xmax=L1_speed, ymin=L1_gap, ymax=10000), fill = "#6b9080", alpha=0.3) +
   geom_rect(mapping=aes(xmin=0, xmax=L2_speed, ymin=L2_gap, ymax=10000), fill = "#a4c3b2", alpha=0.3) +
@@ -101,7 +101,7 @@ data %>%
   labs(
     x = "Ethernet speed (Gbit/s or Gigabit)",
     y = "Time between packets (interpacket gap) (ns)",
-    caption = "Sources: Ethernet speeds from IEEE (on Wikipedia) and speeds to access RAM and caches from Mundhenke, M. 2019 (Spectre and Cloud: An evaluation of threats in shared computation environments). Note that the axes are on a logarithmic scale."
+    caption = "Sources: Ethernet speeds from IEEE (on Wikipedia) and access latencies for RAM and caches from Mundhenke, M. 2019 (Spectre and Cloud: An evaluation of threats in shared computation environments). Note that axes are on a logarithmic scale."
   ) + 
   theme_minimal() + 
   theme(
@@ -113,11 +113,11 @@ data %>%
     legend.title = element_text(size = 14),
     legend.text = element_text(size = 12)
   ) +
-  annotate("text", x=0.01, y=70, label= "DDR4-2400 RAM (61.5 ns)", hjust = 0) +
-  annotate("text", x=0.01, y=12, label= "Intel i7-6700 processor L3 cache (shared) (42 cycles ~ 10.5 ns)", hjust = 0) +
-  annotate("text", x=0.01, y=4, label= "L2 cache (per core) (14 cylces ~ 3.5 ns)", hjust = 0) +
-  annotate("text", x=0.01, y=1.15, color = "#fffafa", label= "L1 cache (per core) (4 cycles ~ 1 ns)", hjust = 0)
+  annotate("text", x=0.01, y=70, label= "DDR4-2400 RAM (access latency: 61.5 ns)", hjust = 0) +
+  annotate("text", x=0.01, y=12, label= "Intel i7-6700 processor L3 cache (shared) (access latency: 42 cycles ~ 10.5 ns)", hjust = 0) +
+  annotate("text", x=0.01, y=4, label= "L2 cache (per core) (access latency: 14 cycles ~ 3.5 ns)", hjust = 0) +
+  annotate("text", x=0.01, y=1.15, color = "#fffafa", label= "L1 cache (per core) (access latency: 4 cycles ~ 1 ns)", hjust = 0)
 
-plot 
+final_plot 
 
 ggsave("plot.svg", width = 16, height = 9)
